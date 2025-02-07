@@ -1,4 +1,7 @@
 # coding:utf-8
+"""
+手动模拟bert的模型结构
+"""
 import torch
 from transformers import BertModel
 import math
@@ -21,40 +24,64 @@ total = 0
 tmp = 0
 vocab_size = bert.state_dict()["embeddings.word_embeddings.weight"].size()[0]
 word_dim = bert.state_dict()["embeddings.word_embeddings.weight"].size()[1]
-total += vocab_size * word_dim + 2 * word_dim + 512 * word_dim + 1 * word_dim + 1 * word_dim + (word_dim * word_dim * 3 + \
-            3 * word_dim + 1 * word_dim + 1 * word_dim + word_dim * 4 * word_dim + 4 * word_dim + 4 * word_dim * word_dim + \
-            1 * word_dim + 1 * word_dim + 1 * word_dim + word_dim * word_dim + 1 * word_dim) * 12
+total += vocab_size * word_dim + 2 * word_dim + 512 * word_dim + 1 * word_dim + 1 * word_dim + (
+        word_dim * word_dim * 3 + \
+        3 * word_dim + word_dim * word_dim + 1 * word_dim + 1 * word_dim + 1 * word_dim + word_dim * 4 * word_dim + 4 * word_dim + 4 * word_dim * word_dim + \
+        1 * word_dim + 1 * word_dim + 1 * word_dim) * 12 + word_dim * word_dim + 1 * word_dim
 tmp += word_dim * word_dim * 3 + \
-            3 * word_dim + 1 * word_dim + 1 * word_dim + word_dim * 4 * word_dim + 4 * word_dim + 4 * word_dim * word_dim + \
-            1 * word_dim + 1 * word_dim + 1 * word_dim + word_dim * word_dim + 1 * word_dim
+       3 * word_dim + word_dim * word_dim + 1 * word_dim + 1 * word_dim + 1 * word_dim + word_dim * 4 * word_dim + 4 * word_dim + 4 * word_dim * word_dim + \
+       1 * word_dim + 1 * word_dim + 1 * word_dim
+pooler = word_dim * word_dim + 1 * word_dim
 print("单层transformer中可训练参数总数：", tmp)
 print("embedding层+12层transformer中可训练参数总数：", total)
 
 total = 0
 # embedding层
-total += bert.state_dict()["embeddings.word_embeddings.weight"].size()[0]*bert.state_dict()["embeddings.word_embeddings.weight"].size()[1]#vocab_size*word_dim
-total += bert.state_dict()["embeddings.token_type_embeddings.weight"].size()[0] * bert.state_dict()["embeddings.token_type_embeddings.weight"].size()[1]#2*word_dim
-total += bert.state_dict()["embeddings.position_embeddings.weight"].size()[0] * bert.state_dict()["embeddings.position_embeddings.weight"].size()[1]#512*word_dim
-total += bert.state_dict()["embeddings.LayerNorm.weight"].size()[-1] + bert.state_dict()["embeddings.LayerNorm.bias"].size()[-1]#1*word_dim + 1*word_dim
+total += bert.state_dict()["embeddings.word_embeddings.weight"].size()[0] * \
+         bert.state_dict()["embeddings.word_embeddings.weight"].size()[1]  # vocab_size*word_dim
+total += bert.state_dict()["embeddings.token_type_embeddings.weight"].size()[0] * \
+         bert.state_dict()["embeddings.token_type_embeddings.weight"].size()[1]  # 2*word_dim
+total += bert.state_dict()["embeddings.position_embeddings.weight"].size()[0] * \
+         bert.state_dict()["embeddings.position_embeddings.weight"].size()[1]  # 512*word_dim
+total += bert.state_dict()["embeddings.LayerNorm.weight"].size()[-1] + \
+         bert.state_dict()["embeddings.LayerNorm.bias"].size()[-1]  # 1*word_dim + 1*word_dim
 print("embedding层中可训练参数总数：", total)
 tmp = 0
-tmp += bert.state_dict()["encoder.layer.0.attention.self.query.weight"].size()[0] * bert.state_dict()["encoder.layer.0.attention.self.query.weight"].size()[1]
+tmp += bert.state_dict()["encoder.layer.0.attention.self.query.weight"].size()[0] * \
+       bert.state_dict()["encoder.layer.0.attention.self.query.weight"].size()[1]
 tmp += bert.state_dict()["encoder.layer.0.attention.self.query.bias"].size()[-1]
-tmp += bert.state_dict()["encoder.layer.0.attention.self.key.weight"].size()[0] * bert.state_dict()["encoder.layer.0.attention.self.key.weight"].size()[1]
+tmp += bert.state_dict()["encoder.layer.0.attention.self.key.weight"].size()[0] * \
+       bert.state_dict()["encoder.layer.0.attention.self.key.weight"].size()[1]
 tmp += bert.state_dict()["encoder.layer.0.attention.self.key.bias"].size()[-1]
-tmp += bert.state_dict()["encoder.layer.0.attention.self.value.weight"].size()[0] * bert.state_dict()["encoder.layer.0.attention.self.value.weight"].size()[1]
+tmp += bert.state_dict()["encoder.layer.0.attention.self.value.weight"].size()[0] * \
+       bert.state_dict()["encoder.layer.0.attention.self.value.weight"].size()[1]
 tmp += bert.state_dict()["encoder.layer.0.attention.self.value.bias"].size()[-1]
-tmp += bert.state_dict()["encoder.layer.0.attention.output.LayerNorm.weight"].size()[-1] + bert.state_dict()["encoder.layer.0.attention.output.LayerNorm.bias"].size()[-1]
-tmp += bert.state_dict()["encoder.layer.0.intermediate.dense.weight"].size()[0] * bert.state_dict()["encoder.layer.0.intermediate.dense.weight"].size()[1]
+tmp += bert.state_dict()["encoder.layer.0.attention.output.dense.weight"].size()[0] * \
+       bert.state_dict()["encoder.layer.0.attention.output.dense.weight"].size()[1]
+tmp += bert.state_dict()["encoder.layer.0.attention.output.dense.bias"].size()[-1]
+tmp += bert.state_dict()["encoder.layer.0.attention.output.LayerNorm.weight"].size()[-1] + \
+       bert.state_dict()["encoder.layer.0.attention.output.LayerNorm.bias"].size()[-1]
+tmp += bert.state_dict()["encoder.layer.0.intermediate.dense.weight"].size()[0] * \
+       bert.state_dict()["encoder.layer.0.intermediate.dense.weight"].size()[1]
 tmp += bert.state_dict()["encoder.layer.0.intermediate.dense.bias"].size()[-1]
-tmp += bert.state_dict()["encoder.layer.0.output.dense.weight"].size()[0] * bert.state_dict()["encoder.layer.0.output.dense.weight"].size()[1]
+tmp += bert.state_dict()["encoder.layer.0.output.dense.weight"].size()[0] * \
+       bert.state_dict()["encoder.layer.0.output.dense.weight"].size()[1]
 tmp += bert.state_dict()["encoder.layer.0.output.dense.bias"].size()[-1]
-tmp += bert.state_dict()["encoder.layer.0.output.LayerNorm.weight"].size()[-1] + bert.state_dict()["encoder.layer.0.output.LayerNorm.bias"].size()[-1]
-tmp += bert.state_dict()["pooler.dense.weight"].size()[0] * bert.state_dict()["pooler.dense.weight"].size()[1]
-tmp += bert.state_dict()["pooler.dense.bias"].size()[-1]
+tmp += bert.state_dict()["encoder.layer.0.output.LayerNorm.weight"].size()[-1] + \
+       bert.state_dict()["encoder.layer.0.output.LayerNorm.bias"].size()[-1]
+pooler = 0
+pooler += bert.state_dict()["pooler.dense.weight"].size()[0] * bert.state_dict()["pooler.dense.weight"].size()[1]
+pooler += bert.state_dict()["pooler.dense.bias"].size()[-1]
 print("单层transformer中可训练参数总数：", tmp)
-print("embedding层+12层transformer中可训练参数总数：", total + 12 * tmp)
+print("embedding层+12层transformer中可训练参数总数：", total + 12 * tmp + pooler)
 
+"""
+单层transformer中可训练参数总数： 7087872
+embedding层+12层transformer中可训练参数总数： 102267648
+embedding层中可训练参数总数： 16622592
+单层transformer中可训练参数总数： 7087872
+embedding层+12层transformer中可训练参数总数： 102267648
+"""
 
 """
 # embedding层   ==>input:sentence_size*vocab_size
@@ -71,6 +98,9 @@ print(bert.state_dict()["encoder.layer.0.attention.self.key.weight"].size())#wor
 print(bert.state_dict()["encoder.layer.0.attention.self.key.bias"].size())#1*word_dim
 print(bert.state_dict()["encoder.layer.0.attention.self.value.weight"].size())#word_dim*word_dim
 print(bert.state_dict()["encoder.layer.0.attention.self.value.bias"].size())#1*word_dim
+# Liner
+print(bert.state_dict()["encoder.layer.0.attention.output.dense.weight"].size())#word_dim*word_dim
+print(bert.state_dict()["encoder.layer.0.attention.output.dense.bias"].size())#1*word_dim
 # layer_normalize
 print(bert.state_dict()["encoder.layer.0.attention.output.LayerNorm.weight"].size())#1*word_dim
 print(bert.state_dict()["encoder.layer.0.attention.output.LayerNorm.bias"].size())#1*word_dim
